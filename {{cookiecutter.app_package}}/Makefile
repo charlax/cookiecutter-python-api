@@ -1,0 +1,49 @@
+SHELL := bash
+.ONESHELL:
+.SHELLFLAGS := -eu -o pipefail -c
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
+install:  ## Install the app locally
+	poetry install
+.PHONY: install
+
+start:  ## Start the app locally
+	poetry run uvicorn app.main:app --reload
+.PHONY: start
+
+ci: typecheck lint test ## Run all checks (test, lint, typecheck)
+.PHONY: ci
+
+##@ Tests
+
+ci: lint typecheck test test-integration  ## Run all checks
+.PHONY: ci
+
+lci: lint-fix ci  ## Autofix then run CI
+.PHONY: lci
+
+test:  ## Run tests
+	poetry run pytest .
+.PHONY: test
+
+lint:  ## Run linting
+	poetry run black --check .
+	poetry run isort -c .
+	poetry run flake8 .
+	poetry run pydocstyle .
+.PHONY: lint
+
+lint-fix:  ## Run autoformatters
+	poetry run black .
+	poetry run isort .
+.PHONY: lint-fix
+
+typecheck:  ## Run typechecking
+	poetry run mypy --show-error-codes --pretty .
+.PHONY: typecheck
+
+.DEFAULT_GOAL := help
+help: Makefile
+	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make \033[36m<target>\033[0m\n"} /^[\/\.a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
