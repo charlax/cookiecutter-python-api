@@ -31,3 +31,6 @@ make sql
 poetry run pytest app/test_replaceme.py
 ```
 
+### Credits
+
+This repo was created based on this template: https://github.com/charlax/cookiecutter-python-api

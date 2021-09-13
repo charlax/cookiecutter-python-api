@@ -25,7 +25,13 @@ lci: lint-fix ci  ## Autofix then run CI
 .PHONY: lci
 
 test:  ## Run tests
-	poetry run pytest .
+	DOTENV=.env.test poetry run pytest .
+.PHONY: test
+
+test-cov:  ## Run tests with coverage
+	DOTENV=.env.test poetry run pytest . --cov-report html
+	@echo "Coverage report written to ./.htmlcov/"
+	python -m webbrowser -t "file://$(abspath htmlcov)/index.html"
 .PHONY: test
 
 lint:  ## Run linting
