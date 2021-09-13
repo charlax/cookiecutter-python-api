@@ -37,7 +37,7 @@ class ConsoleRenderer(structlog.dev.ConsoleRenderer):
         return super()._repr(val)
 
 
-def configure_logger(level: str = "INFO", *, console: bool = False) -> None:
+def setup_logging(level: str = "INFO", *, console: bool = False) -> None:
     """Configure logging.
 
     console should be True for console (dev) environment.
