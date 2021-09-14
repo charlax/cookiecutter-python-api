@@ -13,13 +13,13 @@ class TFoo(Base):
     name = Column(String())
 
 
-def get(job_id: uuid.UUID) -> Job:
+def get(job_id: uuid.UUID) -> Foo:
     stmt = select(TFoo).where(TFoo.id == job_id)
     record = session.execute(stmt)
-    return Job.from_orm(record)
+    return Foo.from_orm(record)
 
 
-def create(name: str) -> Job:
+def create(name: str) -> Foo:
     record = TFoo(name=name)
     session.add(record)
     session.commit()

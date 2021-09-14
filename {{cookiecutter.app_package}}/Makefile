@@ -10,7 +10,7 @@ install:  ## Install the app locally
 .PHONY: install
 
 start:  ## Start the app locally
-	poetry run uvicorn app.main:app --reload
+	poetry run uvicorn {{cookiecutter.app_package}}.main:app --reload
 .PHONY: start
 
 ci: typecheck lint test ## Run all checks (test, lint, typecheck)

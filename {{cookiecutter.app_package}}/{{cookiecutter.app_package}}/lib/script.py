@@ -1,4 +1,4 @@
-from app.lib.logging import setup_logging
+from {{cookiecutter.app_package}}.lib.log import setup_logging
 
 
 def setup() -> None:
