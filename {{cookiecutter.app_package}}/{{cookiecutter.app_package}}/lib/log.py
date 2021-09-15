@@ -37,7 +37,7 @@ class ConsoleRenderer(structlog.dev.ConsoleRenderer):
         return super()._repr(val)
 
 
-def setup_logging(level: str = "INFO", *, console: bool = False) -> None:
+def setup_logging(level: str = "INFO", *, is_console: bool = False) -> None:
     """Configure logging.
 
     console should be True for console (dev) environment.
@@ -49,7 +49,7 @@ def setup_logging(level: str = "INFO", *, console: bool = False) -> None:
             root.removeHandler(handler)
     logging.basicConfig(format="%(message)s", level=level)
 
-    if not console:
+    if not is_console:
         processors = [
             add_version,
             structlog.stdlib.filter_by_level,

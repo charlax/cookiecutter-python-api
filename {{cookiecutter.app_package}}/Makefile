@@ -13,12 +13,13 @@ start:  ## Start the app locally
 	poetry run uvicorn {{cookiecutter.app_package}}.main:app --reload
 .PHONY: start
 
-ci: typecheck lint test ## Run all checks (test, lint, typecheck)
-.PHONY: ci
 
+python:  ## Start Python shell
+	poetry run python
+.PHONY: python
 ##@ Tests
 
-ci: lint typecheck test test-integration  ## Run all checks
+ci: typecheck lint test ## Run all checks (test, lint, typecheck)
 .PHONY: ci
 
 lci: lint-fix ci  ## Autofix then run CI
