@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Any
 from uuid import UUID
@@ -6,18 +5,7 @@ from uuid import UUID
 import structlog
 
 from {{cookiecutter.app_package}}.config import config
-
-
-def default(obj: Any) -> Any:
-    if isinstance(obj, UUID):
-        return str(obj)
-
-    raise TypeError(f"Can't serialize {type(obj)}")
-
-
-def dumps(*args: Any, **kwargs: Any) -> str:
-    kwargs.pop("default", None)
-    return json.dumps(*args, **kwargs, default=default)
+from {{cookiecutter.app_package}}.lib.json_encoder import dumps
 
 
 def add_version(
