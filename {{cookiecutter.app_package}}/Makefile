@@ -17,6 +17,7 @@ start:  ## Start the app locally
 python:  ## Start Python shell
 	poetry run python
 .PHONY: python
+
 ##@ Tests
 
 ci: typecheck lint test ## Run all checks (test, lint, typecheck)
