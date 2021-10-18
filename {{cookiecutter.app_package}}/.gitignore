@@ -1,5 +1,5 @@
 # Config
-.env*
+.env*.local
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
