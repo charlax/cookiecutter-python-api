@@ -3,8 +3,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic import BaseSettings
+from structlog import get_logger
 
 ENV_FILENAME = os.environ.get("DOTENV", ".env")
+logger = get_logger(__name__)
 
 
 class MisconfiguredException(Exception):
@@ -29,7 +31,8 @@ def get_config() -> Config:
     # https://www.npmjs.com/package/serverless-dotenv-plugin
 
     # First load .env
-    load_dotenv(dotenv_path=".env")
+    load_dotenv(dotenv_path=".env", override=True)
+    logger.debug("loaded", filename=".env")
 
     if not Path(ENV_FILENAME).exists():
         raise ValueError(f"Config file {ENV_FILENAME} does not exist.")
@@ -42,12 +45,14 @@ def get_config() -> Config:
         )
 
     # Then load .env.{env}
-    load_dotenv(dotenv_path=ENV_FILENAME)
+    load_dotenv(dotenv_path=ENV_FILENAME, override=True)
+    logger.debug("loaded", filename=ENV_FILENAME)
 
     # Then load .env.{env}.local if it exists
     override = ENV_FILENAME + ".local"
     if Path(override).exists():
-        load_dotenv(dotenv_path=override)
+        load_dotenv(dotenv_path=override, override=True)
+        logger.debug("loaded", filename=override)
 
     return Config()
 
