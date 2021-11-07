@@ -14,6 +14,10 @@ class MisconfiguredException(Exception):
 
 
 class Config(BaseSettings):
+    class Config:
+        # https://pydantic-docs.helpmanual.io/usage/settings/#use-case-docker-secrets
+        secrets_dir = '/run/secrets'
+
     # Please use env_name ONLY for informational purpose
     env_name: str
     git_commit_short: str = "unknown"
