@@ -16,7 +16,7 @@ class MisconfiguredException(Exception):
 class Config(BaseSettings):
     class Config:
         # https://pydantic-docs.helpmanual.io/usage/settings/#use-case-docker-secrets
-        secrets_dir = '/run/secrets'
+        secrets_dir = "/run/secrets"
 
     # Please use env_name ONLY for informational purpose
     env_name: str
@@ -27,6 +27,9 @@ class Config(BaseSettings):
     db_name: str = "unconfigured"
     db_port: str = "5432"
     db_host: str = "localhost"
+
+    # Set to true for local dev
+    use_console_logging: bool = False
 
 
 def get_config() -> Config:
