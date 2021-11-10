@@ -9,14 +9,21 @@ install:  ## Install the app locally
 	poetry install
 .PHONY: install
 
+reset-db:  ## Reset the db
+	poetry run python bin/setup_db.py
+.PHONY: reset-db
+
 start:  ## Start the app locally
 	poetry run uvicorn {{cookiecutter.app_package}}.main:app --reload
 .PHONY: start
 
-
 python:  ## Start Python shell
 	poetry run python
 .PHONY: python
+
+sql:  ## Start SQL shell
+	poetry run bin/sql_shell.py
+.PHONY: sql
 
 ##@ Tests
 

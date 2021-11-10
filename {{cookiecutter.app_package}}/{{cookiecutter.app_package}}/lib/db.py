@@ -1,10 +1,12 @@
 import importlib
 import pkgutil
+from contextlib import contextmanager
+from typing import Iterator
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from {{ cookiecutter.app_package}}.config import config
 
@@ -17,8 +19,17 @@ engine_url = URL.create(
     database=config.db_name,
 )
 engine = create_engine("TODO", future=True)
-session = Session(engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+@contextmanager
+def get_db() -> Iterator[Session]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 def import_all_repos() -> None:
@@ -38,4 +49,5 @@ def check_db() -> None:  # nocov
     with engine.connect() as conn:
         result = conn.execute(text("select 1"))
         value = result.fetchone()[0]
-        assert value == 1
+        if value != 1:
+            raise ValueError(f"Expected 1, got {value}")
