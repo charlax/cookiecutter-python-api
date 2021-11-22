@@ -5,7 +5,7 @@ from uuid import UUID
 import structlog
 
 from {{cookiecutter.app_package}}.config import config
-from {{cookiecutter.app_package}}.lib.json_encoder import dumps
+from {{cookiecutter.app_package}}.lib.json_encoder import forgiving_dumps
 
 
 def add_version(
@@ -46,7 +46,7 @@ def setup_logging(level: str = "INFO", *, is_console: bool = False) -> None:
             structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M.%S"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
-            structlog.processors.JSONRenderer(serializer=dumps),
+            structlog.processors.JSONRenderer(serializer=forgiving_dumps),
         ]
     else:  # nocov
         processors = [

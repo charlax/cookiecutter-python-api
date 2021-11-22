@@ -1,7 +1,6 @@
 import pytest
-from sqlalchemy.orm import sessionmaker
 
-from {{cookiecutter.app_package}}.lib.db import engine
+from {{cookiecutter.app_package}}.lib.db import engine, SessionLocal
 
 Session = sessionmaker()
 
@@ -12,9 +11,9 @@ def db(mocker):  # type: ignore
     conn = engine.connect()
     trans = conn.begin()
 
-    session = Session(bind=conn)
+    session = SessionLocal(bind=conn)
 
-    mocker.patch("{{cookiecutter.app_package}}.lib.db.Session", lambda: session)
+    mocker.patch("{{cookiecutter.app_package}}.lib.db.SessionLocal", lambda: session)
 
     yield session
 

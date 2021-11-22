@@ -46,6 +46,9 @@ def import_all_repos() -> None:
 
 def check_db() -> None:  # nocov
     """Ensure the connection with the DB works."""
+    if engine_url.password == "unconfigured":
+        raise MisconfiguredException("db password is empty, check env and config")
+
     with engine.connect() as conn:
         result = conn.execute(text("select 1"))
         value = result.fetchone()[0]

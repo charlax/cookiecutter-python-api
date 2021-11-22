@@ -2,12 +2,15 @@
 import argparse
 import sys
 
-from {{cookiecutter.app_package}}.lib.db import Base, engine, import_all_repos
+from {{cookiecutter.app_package}}.lib.db import Base, check_db, engine, import_all_repos
 from {{cookiecutter.app_package}}.lib.script import setup_for_script
 
 
 def main() -> int:
     import_all_repos()
+
+    check_db()
+
     Base.metadata.drop_all(engine, checkfirst=True)
     Base.metadata.create_all(engine)
     return 0
