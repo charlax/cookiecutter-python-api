@@ -17,6 +17,9 @@ structlog = "^21.1.0"
 uvicorn = {extras = ["standard"], version = "^0.15.0"}
 mypy = "^0.910"
 flake8 = "^3.9.2"
+flake8-docstrings = "^1.6.0"
+flake8-black = "^0.2.3"
+flake8-isort = "^4.1.1"
 isort = "^5.9.3"
 pydocstyle = "^6.1.1"
 pytest = "^6.2.5"
@@ -49,6 +52,7 @@ branch = true
 [tool.mypy]
 strict = true
 plugins = ["sqlalchemy.ext.mypy.plugin"]
+exclude = "(tmp|.venv)"
 
 [tool.isort]
 # Make isort compatible with black, see docs
@@ -58,3 +62,8 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 88
+skip = ["tmp", ".venv"]
+
+[tool.black]
+extend_exclude = true
+exclude = "(tmp|.venv)"

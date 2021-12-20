@@ -1,6 +1,7 @@
 FROM python:3.9-slim-buster as python-base
 
 ENV PYTHONUNBUFFERED=1 \
+    # prevents python creating .pyc files
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -21,10 +22,8 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 # and install only runtime deps using poetry
 WORKDIR /app
 COPY ./poetry.lock ./pyproject.toml ./
-RUN poetry install --no-dev
-# TODO: uvicorn is in the dev dependencies, need a multi-stage build
 
-# TODO: add a way to share cached packages with host
+RUN --mount=type=cache,target=/root/.cache poetry install
 
 COPY ./api ./api
 
