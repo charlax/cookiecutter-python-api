@@ -55,7 +55,7 @@ plugins = ["sqlalchemy.ext.mypy.plugin"]
 exclude = "(tmp|.venv)"
 
 [tool.isort]
-# Make isort compatible with black, see docs
+# Make isort compatible with black
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
