@@ -1,7 +1,7 @@
 import importlib
 import pkgutil
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Any, Iterator
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
@@ -54,3 +54,14 @@ def check_db() -> None:  # nocov
         value = result.fetchone()[0]
         if value != 1:
             raise ValueError(f"Expected 1, got {value}")
+
+
+def update_record(record: Base, update_request: Any) -> None:
+    """Update a record based on an update request.
+
+    The current implementation only allows None as 'not provided' value.
+    """
+    for key, value in update_request:
+        if not value:
+            continue
+        setattr(record, key, value)
