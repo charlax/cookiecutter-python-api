@@ -12,7 +12,7 @@ def add_version(
     logger: logging.Logger, method_name: str, event_dict: dict[str, Any]
 ) -> dict[str, Any]:
     """Add version to log message."""
-    event_dict["version"] = config.git_commit_short
+    event_dict["version"] = config.GIT_COMMIT_SHORT
     return event_dict
 
 
@@ -35,6 +35,8 @@ def setup_logging(level: str = "INFO", *, is_console: bool = False) -> None:
     if root.handlers:
         for handler in root.handlers:
             root.removeHandler(handler)
+
+    # See https://www.structlog.org/en/stable/standard-library.html#stdlib-config
     logging.basicConfig(format="%(message)s", level=level)
 
     if not is_console:

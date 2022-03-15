@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from pydantic import BaseSettings
 from structlog import get_logger
 
-ENV_FILENAME = os.environ.get("DOTENV", ".env")
+BASE_ENV_FILENAME = ".env"
+ENV_FILENAME = os.environ.get("DOTENV", BASE_ENV_FILENAME)
 logger = get_logger(__name__)
 
 
@@ -19,17 +20,17 @@ class Config(BaseSettings):
         secrets_dir = "/run/secrets"
 
     # Please use env_name ONLY for informational purpose
-    env_name: str
-    git_commit_short: str = "unknown"
+    ENV_NAME: str
+    GIT_COMMIT_SHORT: str = "unknown"
 
-    db_user: str = "unconfigured"
-    db_password: str = "unconfigured"
-    db_name: str = "unconfigured"
-    db_port: str = "5432"
-    db_host: str = "localhost"
+    DB_USER: str = "unconfigured"
+    DB_PASSWORD: str = "unconfigured"
+    DB_NAME: str = "unconfigured"
+    DB_PORT: str = "5432"
+    DB_HOST: str = "localhost"
 
     # Set to true for local dev
-    use_console_logging: bool = False
+    USE_CONSOLE_LOGGING: bool = False
 
 
 def get_config() -> Config:
@@ -38,8 +39,8 @@ def get_config() -> Config:
     # https://www.npmjs.com/package/serverless-dotenv-plugin
 
     # First load .env
-    load_dotenv(dotenv_path=".env", override=True)
-    logger.debug("loaded", filename=".env")
+    load_dotenv(dotenv_path=BASE_ENV_FILENAME, override=True)
+    logger.debug("config loaded", filename=BASE_ENV_FILENAME)
 
     if not Path(ENV_FILENAME).exists():
         raise ValueError(f"Config file {ENV_FILENAME} does not exist.")
@@ -52,14 +53,15 @@ def get_config() -> Config:
         )
 
     # Then load .env.{env}
-    load_dotenv(dotenv_path=ENV_FILENAME, override=True)
-    logger.debug("loaded", filename=ENV_FILENAME)
+    if ENV_FILENAME != BASE_ENV_FILENAME:
+        load_dotenv(dotenv_path=ENV_FILENAME, override=True)
+        logger.debug("config loaded", filename=ENV_FILENAME)
 
     # Then load .env.{env}.local if it exists
     override = ENV_FILENAME + ".local"
     if Path(override).exists():
         load_dotenv(dotenv_path=override, override=True)
-        logger.debug("loaded", filename=override)
+        logger.debug("config loaded", filename=override)
 
     return Config()
 

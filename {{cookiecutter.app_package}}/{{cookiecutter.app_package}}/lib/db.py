@@ -12,11 +12,11 @@ from {{ cookiecutter.app_package}}.config import config
 
 engine_url = URL.create(
     drivername="postgresql+psycopg2",
-    username=config.db_user,
-    password=config.db_password,
-    host=config.db_host,
-    port=config.db_port,
-    database=config.db_name,
+    username=config.DB_USER,
+    password=config.DB_PASSWORD,
+    host=config.DB_HOST,
+    port=config.DB_PORT,
+    database=config.DB_NAME,
 )
 engine = create_engine("TODO", future=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
