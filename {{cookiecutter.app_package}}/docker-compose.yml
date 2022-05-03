@@ -1,0 +1,53 @@
+version: '3.8'
+
+# Note: docker compose loads .env automatically
+
+services:
+
+  api:
+    build:
+    context: ./api
+    args:
+      git_sha:
+      git_branch:
+    restart: on-failure
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 2s
+      retries: 3
+      start_period: 10s
+    environment:
+      DB_USER: ${DB_USER}
+      DB_NAME: dbname
+      DB_PORT: 5432
+      DB_HOST: db
+    secrets:
+      - db_password
+
+
+  redis:
+    image: redis:6-alpine
+
+  db:
+    image: postgres:14.0
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    restart: unless-stopped
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+    external: true
+
+secrets:
+  db_password:
+    file: ${SECRETS_DIR-.secrets}/db_password

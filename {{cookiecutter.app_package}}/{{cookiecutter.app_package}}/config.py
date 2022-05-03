@@ -2,11 +2,13 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import BaseSettings
+from pydantic import AnyHttpUrl, BaseSettings
 from structlog import get_logger
 
 BASE_ENV_FILENAME = ".env"
 ENV_FILENAME = os.environ.get("DOTENV", BASE_ENV_FILENAME)
+UNCONFIGURED = "unconfigured"
+
 logger = get_logger(__name__)
 
 
@@ -21,13 +23,16 @@ class Config(BaseSettings):
 
     # Please use env_name ONLY for informational purpose
     ENV_NAME: str
-    GIT_COMMIT_SHORT: str = "unknown"
 
-    DB_USER: str = "unconfigured"
-    DB_PASSWORD: str = "unconfigured"
-    DB_NAME: str = "unconfigured"
+    GIT_SHA: str = ""
+
+    DB_USER: str = UNCONFIGURED
+    DB_PASSWORD: str = UNCONFIGURED
+    DB_NAME: str = UNCONFIGURED
     DB_PORT: str = "5432"
     DB_HOST: str = "localhost"
+
+    BASE_API_URL: AnyHttpUrl
 
     # Set to true for local dev
     USE_CONSOLE_LOGGING: bool = False

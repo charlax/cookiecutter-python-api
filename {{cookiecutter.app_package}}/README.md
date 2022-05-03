@@ -8,6 +8,14 @@ Make sure you have those dependencies installed:
 - Makefile
 - [Poetry](https://python-poetry.org/docs/)
 - [Docker](https://docs.docker.com/get-docker/)
+- Docker compose
+
+## Environments
+
+- `dev`: development
+- `prod`: production
+
+Note that when we run within a Docker environment (e.g. via `docker compose`), we override values within a `docker-compose.local.yml` file.
 
 ## Installation
 

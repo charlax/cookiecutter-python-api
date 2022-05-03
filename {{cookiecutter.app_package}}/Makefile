@@ -13,9 +13,17 @@ reset-db:  ## Reset the db
 	poetry run python bin/setup_db.py
 .PHONY: reset-db
 
-start:  ## Start the app locally
-	poetry run uvicorn {{cookiecutter.app_package}}.main:app --reload
+start:  ## Start the app within Docker
+	git_sha=$(shell git rev-parse --short HEAD) git_branch=$(shell git rev-parse --abbrev-ref HEAD) ./bin/docker-compose.sh dev up --build --exit-code-from api --remove-orphans
 .PHONY: start
+
+start-db:  ## Start only the db
+	./bin/docker-compose.sh dev up db -d
+.PHONY: start-db
+
+start-local:  ## Start the app locally
+	poetry run uvicorn {{cookiecutter.app_package}}.main:app --reload
+.PHONY: start-local
 
 python:  ## Start Python shell
 	poetry run python
@@ -24,12 +32,12 @@ python:  ## Start Python shell
 ##@ DB
 
 db-reset:  ## Reset the DB (local and Docker)
-	DOTENV=.env.devlocal poetry run {{cookiecutter.app_package}}/bin/create_db.py --user dbuser --password dbpassword --name dbname
+	DOTENV=.env.dev poetry run {{cookiecutter.app_package}}/bin/create_db.py --user dbuser --password dbpassword --name dbname
 	DOTENV=.env.devlocal poetry run alembic upgrade head
 .PHONY: db-reset
 
 db-test-reset:  ## Reset the test db
-	DOTENV=.env.devlocal poetry run api/bin/create_db.py --user user_test --password password_test --name db_test
+	DOTENV=.env.dev poetry run api/bin/create_db.py --user user_test --password password_test --name db_test
 	DOTENV=.env.test poetry run alembic upgrade head
 .PHONY: db-test-reset
 

@@ -12,11 +12,12 @@ ENV PYTHONUNBUFFERED=1 \
 
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
+# Add git if you need to install dependencies from source
 RUN apt-get update \
     && apt-get install --no-install-recommends -y curl build-essential
 
 # Do not install using pip, otherwise this will mess up the virtual env
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # We copy our Python requirements here to cache them
 # and install only runtime deps using poetry
@@ -27,5 +28,14 @@ RUN --mount=type=cache,target=/root/.cache poetry install
 
 COPY ./api ./api
 
+ARG git_sha=""
+ARG git_branch=""
+
+LABEL git_sha=${git_sha}
+LABEL git_branch=${git_branch}
+
+ENV GIT_SHA=${git_sha}
+ENV GIT_BRANCH=${git_branch}
+
 EXPOSE 8000
-CMD ["uvicorn", "--reload", "--host=0.0.0.0", "--port=8000", "api.main:app"]
+CMD ["uvicorn", "--reload", "--host=0.0.0.0", "--port=8000", "api.main:app", "--no-access-log"]

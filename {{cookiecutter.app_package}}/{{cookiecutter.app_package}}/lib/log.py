@@ -1,18 +1,35 @@
 import logging
-from typing import Any
+from pathlib import Path
+from typing import Any, Dict, Optional
 from uuid import UUID
 
 import structlog
+from asgi_correlation_id.context import correlation_id
+from asgi_correlation_id.extensions.celery import load_correlation_ids
 
 from {{cookiecutter.app_package}}.config import config
 from {{cookiecutter.app_package}}.lib.json_encoder import forgiving_dumps
 
+# Transfer the request id to the task
+load_correlation_ids()
+
 
 def add_version(
-    logger: logging.Logger, method_name: str, event_dict: dict[str, Any]
+    logger: logging.Logger, method_name: str, event_dict: Dict[str, Any]
 ) -> dict[str, Any]:
     """Add version to log message."""
-    event_dict["version"] = config.GIT_COMMIT_SHORT
+    # app version is set in main.py
+    if config.GIT_SHA:
+        event_dict["git_sha"] = config.GIT_SHA
+    return event_dict
+
+
+def add_correlation(
+    logger: logging.Logger, method_name: str, event_dict: Dict[str, Any]
+) -> dict[str, Any]:
+    """Add request id to log message."""
+    if request_id := correlation_id.get():
+        event_dict["request_id"] = request_id
     return event_dict
 
 
@@ -22,25 +39,36 @@ class ConsoleRenderer(structlog.dev.ConsoleRenderer):
         # https://www.structlog.org/en/stable/_modules/structlog/dev.html#ConsoleRenderer
         if isinstance(val, UUID):
             return str(val)
+        if isinstance(val, Path):
+            return str(val)
         return super()._repr(val)
 
 
-def setup_logging(level: str = "INFO", *, is_console: bool = False) -> None:
+def setup_logging(
+    level: str = "INFO",
+    *,
+    is_console: Optional[bool] = None,
+    bind: Optional[Dict[str, Any]] = None,
+) -> None:
     """Configure logging.
 
-    console should be True for console (dev) environment.
+    :param is_console: should be True for console (dev) environment.
+    :param bind: extra key-values to log with all messages
+
     """
+    is_console = is_console if is_console is not None else config.USE_CONSOLE_LOGGING
     # see https://stackoverflow.com/questions/37703609/using-python-logging-with-aws-lambda
     root = logging.getLogger()
     if root.handlers:
         for handler in root.handlers:
             root.removeHandler(handler)
-
-    # See https://www.structlog.org/en/stable/standard-library.html#stdlib-config
     logging.basicConfig(format="%(message)s", level=level)
 
     if not is_console:
         processors = [
+            # Must be first
+            structlog.contextvars.merge_contextvars,
+            add_correlation,
             add_version,
             structlog.stdlib.filter_by_level,
             structlog.stdlib.add_logger_name,
@@ -52,6 +80,10 @@ def setup_logging(level: str = "INFO", *, is_console: bool = False) -> None:
         ]
     else:  # nocov
         processors = [
+            # Must be first
+            structlog.contextvars.merge_contextvars,
+            add_correlation,
+            add_version,
             structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,
             structlog.stdlib.PositionalArgumentsFormatter(),
