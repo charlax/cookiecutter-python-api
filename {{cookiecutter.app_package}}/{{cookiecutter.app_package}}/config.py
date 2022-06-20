@@ -42,31 +42,28 @@ def get_config() -> Config:
     """Get the config."""
     # We follow serverless's dotenv behavior here:
     # https://www.npmjs.com/package/serverless-dotenv-plugin
+    # .env -> .env.{env} -> .env.{env}.local
 
-    # First load .env
-    load_dotenv(dotenv_path=BASE_ENV_FILENAME, override=True)
-    logger.debug("config loaded", filename=BASE_ENV_FILENAME)
+    def try_load(filename: str) -> None:
+        if not filename or not Path(filename).exists():
+            return
+        load_dotenv(dotenv_path=filename)
+        logger.debug("config loaded", filename=filename)
 
-    if not Path(ENV_FILENAME).exists():
-        raise ValueError(f"Config file {ENV_FILENAME} does not exist.")
+    # To allow overriding with env var, we load by order of decreasing
+    # specificity
 
-    if ENV_FILENAME.endswith(".local"):
+    if ENV_FILENAME and ENV_FILENAME.endswith(".local"):
         raise ValueError(
             "Expected env filename like '.env.dev', "
             f"got override ending with .local instead: {ENV_FILENAME!r}. "
             f" Try with {ENV_FILENAME.replace('.local', '')!r}"
         )
 
-    # Then load .env.{env}
-    if ENV_FILENAME != BASE_ENV_FILENAME:
-        load_dotenv(dotenv_path=ENV_FILENAME, override=True)
-        logger.debug("config loaded", filename=ENV_FILENAME)
-
-    # Then load .env.{env}.local if it exists
-    override = ENV_FILENAME + ".local"
-    if Path(override).exists():
-        load_dotenv(dotenv_path=override, override=True)
-        logger.debug("config loaded", filename=override)
+    # Load .env.{env}.local if it exists
+    try_load(ENV_FILENAME + ".local")
+    try_load(ENV_FILENAME)
+    try_load(BASE_ENV_FILENAME)
 
     return Config()
 
