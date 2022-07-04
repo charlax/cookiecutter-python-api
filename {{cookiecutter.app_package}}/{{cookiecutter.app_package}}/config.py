@@ -24,6 +24,7 @@ class Config(BaseSettings):
     # Please use env_name ONLY for informational purpose
     ENV_NAME: str
 
+    VERSION: str = ""
     GIT_SHA: str = ""
 
     DB_USER: str = UNCONFIGURED
@@ -64,6 +65,9 @@ def get_config() -> Config:
     try_load(ENV_FILENAME + ".local")
     try_load(ENV_FILENAME)
     try_load(BASE_ENV_FILENAME)
+
+    with open("VERSION") as f:
+        os.environ["VERSION"] = f.read().strip()
 
     return Config()
 

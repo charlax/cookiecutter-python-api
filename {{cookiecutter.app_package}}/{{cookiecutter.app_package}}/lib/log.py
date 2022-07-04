@@ -16,14 +16,17 @@ load_correlation_ids()
 _LOGGING_CONFIGURED = False
 
 
-def add_version(
-    logger: logging.Logger, method_name: str, event_dict: Dict[str, Any]
-) -> dict[str, Any]:
-    """Add version to log message."""
-    # app version is set in main.py
-    if config.GIT_SHA:
-        event_dict["git_sha"] = config.GIT_SHA
-    return event_dict
+
+
+def add_variables(bind: Dict[str, Any]) -> structlog.types.Processor:
+    def add_variables_inner(
+        logger: Any, method_name: str, event_dict: MutableMapping[str, Any]
+    ) -> MutableMapping[str, Any]:
+        """Add other variables to log message."""
+        event_dict.update(bind)
+        return event_dict
+
+    return add_variables_inner
 
 
 def add_correlation(
@@ -76,11 +79,15 @@ def setup_logging(
         for handler in root.handlers:
             root.removeHandler(handler)
 
+    extra = {"app_version": config.VERSION}
+    if config.GIT_SHA:
+        extra["git_sha"] = config.GIT_SHA
+
     processors: List[structlog.types.Processor] = [
         # Must be first
         structlog.contextvars.merge_contextvars,
         add_correlation,
-        add_version,
+        add_variables(extra),
         structlog.stdlib.filter_by_level,
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
@@ -117,3 +124,9 @@ def setup_logging(
     root_logger = logging.getLogger("{{ cookiecutter.app_package }}")
     root_logger.addHandler(handler_stream)
     root_logger.setLevel(logging.INFO)
+
+    # Prevent double logging to Sentry
+    # https://stackoverflow.com/questions/68733567/uvicorn-fastapi-duplicate-logging
+    uvicorn = logging.getLogger("uvicorn.error")
+    uvicorn.propagate = False
+    uvicorn.handlers = []

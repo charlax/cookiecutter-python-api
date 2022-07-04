@@ -7,15 +7,21 @@ from asgi_correlation_id.context import correlation_id
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from {{cookiecutter.app_package}}.config import config
 from {{cookiecutter.app_package}}.lib.log import setup_logging
+from {{cookiecutter.app_package}}.lib.sentry import setup_sentry
 from {{cookiecutter.app_package}}.route import health
 
 
 ROUTERS = [health]
 
-app = FastAPI(version="0.1.1")
+app = FastAPI(
+    version=config.VERSION,
+    description="API description",
+    contact={"name": "YOUR_NAME"},
+)
 app.add_middleware(
     TrustedHostMiddleware, allowed_hosts=[config.BASE_API_URL.host, "127.0.0.1", "localhost"]
 )
@@ -29,6 +35,10 @@ app.add_middleware(
 setup_logging(bind={"app_version": app.version})
 
 logger = structlog.get_logger(__name__)
+
+if config.IS_SENTRY_ENABLED:
+    setup_sentry()
+    app.add_middleware(SentryAsgiMiddleware)
 
 Middleware = Callable[[Request], Awaitable[Response]]
 

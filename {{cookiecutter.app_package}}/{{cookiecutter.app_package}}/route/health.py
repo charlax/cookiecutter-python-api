@@ -24,6 +24,16 @@ async def get_health_log() -> dict[str, str]:
     return {"message": "ok"}
 
 
+@router.get("/health/exception")
+async def get_health_exception() -> dict[str, str]:
+    """Verify exception handling."""
+
+    class TestingExceptionHandlingException(Exception):
+        pass
+
+    raise TestingExceptionHandlingException()
+
+
 @router.get("/health/task")
 async def get_health_task() -> dict[str, str]:
     """Verify async task health."""
@@ -45,6 +55,13 @@ async def get_health_task_db() -> dict[str, str]:
     except celery.exceptions.TimeoutError:
         raise HTTPException(status_code=500, detail="task timeout")
     return {"message": result}
+
+
+@router.get("/health/task/exception")
+async def get_health_task_exception() -> dict[str, str]:
+    """Call task to test exception handling."""
+    tasks.raise_test_exception.delay()
+    return {"message": "ok"}
 
 
 @router.get("/health/db")

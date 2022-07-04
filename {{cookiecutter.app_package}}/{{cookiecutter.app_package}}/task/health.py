@@ -16,3 +16,13 @@ def health(arg: str = "") -> str:
 def health_db() -> str:
     check_db()
     return "ok"
+
+
+@app.task
+def raise_test_exception() -> None:
+    """Check exception handling in tasks."""
+
+    class TestingExceptionHandlingException(Exception):
+        pass
+
+    raise TestingExceptionHandlingException()

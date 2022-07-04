@@ -3,7 +3,7 @@ from typing import Any
 
 from celery import Celery
 from celery.schedules import crontab
-from celery.signals import beat_init
+from celery.signals import worker_init
 
 from {{cookiecutter.app_package}}.config import config
 from {{cookiecutter.app_package}}.lib.log import setup_logging
@@ -29,4 +29,7 @@ app = Celery(
     task_track_started=True,
 )
 
-setup_logging()
+@worker_init.connect  # type: ignore
+def at_worker_init(*args: Any, **kwargs: Any) -> None:
+    setup_logging()
+    setup_sentry()
