@@ -29,13 +29,13 @@ RUN --mount=type=cache,target=/root/.cache poetry install
 COPY ./api ./api
 
 ARG git_sha=""
-ARG git_branch=""
+ARG git_ref=""
 
 LABEL git_sha=${git_sha}
-LABEL git_branch=${git_branch}
+LABEL git_ref=${git_ref}
 
 ENV GIT_SHA=${git_sha}
-ENV GIT_BRANCH=${git_branch}
+ENV GIT_REF=${git_ref}
 
 EXPOSE 8000
 CMD ["uvicorn", "--reload", "--host=0.0.0.0", "--port=8000", "api.main:app", "--no-access-log"]
