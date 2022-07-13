@@ -54,7 +54,7 @@ def get_config() -> Config:
     # To allow overriding with env var, we load by order of decreasing
     # specificity
 
-    if ENV_FILENAME and ENV_FILENAME.endswith(".local"):
+    if ENV_FILENAME and ENV_FILENAME.endswith(".local"):  # nocov
         raise ValueError(
             "Expected env filename like '.env.dev', "
             f"got override ending with .local instead: {ENV_FILENAME!r}. "

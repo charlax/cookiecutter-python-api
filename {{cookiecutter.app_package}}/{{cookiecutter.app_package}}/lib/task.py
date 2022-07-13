@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-from celery import Celery
+from celery import Celery, signals
 from celery.schedules import crontab
 from celery.signals import worker_init
 
@@ -27,9 +27,15 @@ app = Celery(
     task_time_limit=3600,  # hard limit
     task_soft_time_limit=3600,  # soft limit
     task_track_started=True,
+    worker_hijack_root_logger=False,
 )
 
-@worker_init.connect  # type: ignore
+@worker_init.connect  # type: ignore[misc]
 def at_worker_init(*args: Any, **kwargs: Any) -> None:
-    setup_logging()
     setup_sentry()
+
+
+@signals.setup_logging.connect  # type: ignore[misc]
+def on_setup_logging(**kwargs: Any) -> None:
+    # Defining this signal handler deactivates celery's logging setup
+    setup_logging()

@@ -49,7 +49,7 @@ async def request_middleware(request: Request, call_next: Middleware) -> Respons
 
     # Requests: https://github.com/encode/starlette/blob/master/starlette/requests.py
     logger.info(
-        "request received",
+        "request started",
         method=request.method,
         path=request.url.path,
         client=request.client and request.client.host,

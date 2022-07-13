@@ -7,7 +7,7 @@ from {{cookiecutter.app_package}}.config import config
 logger = get_logger(__name__)
 
 
-def setup_sentry() -> None:
+def setup_sentry() -> None:  # nocov
     logger.debug("setting up Sentry")
     sentry_sdk.init(
         dsn=config.SENTRY_DSN,
