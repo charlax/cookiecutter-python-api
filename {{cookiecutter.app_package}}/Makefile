@@ -45,6 +45,10 @@ db-migrate:  ## Migrate the dev db
 	DOTENV=.env.dev poetry run alembic upgrade head
 .PHONY: db-migrate
 
+db-downgrade:  ## Downgrade the dev db
+	DOTENV=.env.dev poetry run alembic downgrade -1
+.PHONY: db-downgrade
+
 db-show-migration:  ## Show latest migration
 	poetry run alembic upgrade head --sql
 .PHONY: db-show-migration

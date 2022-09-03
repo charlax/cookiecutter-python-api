@@ -36,7 +36,7 @@ setup_logging(bind={"app_version": app.version})
 
 logger = structlog.get_logger(__name__)
 
-if config.IS_SENTRY_ENABLED:
+if config.IS_SENTRY_ENABLED:  # nocov
     setup_sentry()
     app.add_middleware(SentryAsgiMiddleware)
 

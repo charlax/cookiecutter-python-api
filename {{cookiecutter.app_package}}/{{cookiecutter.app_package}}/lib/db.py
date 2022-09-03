@@ -1,7 +1,7 @@
 import importlib
 import pkgutil
 from contextlib import contextmanager
-from typing import Any, Iterator
+from typing import Any, Iterator, Optional, Type
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
@@ -24,8 +24,9 @@ Base = declarative_base()
 
 
 @contextmanager
-def get_db() -> Iterator[Session]:
-    db = SessionLocal()
+def get_db(session_cls: Optional[Type[Session]] = None) -> Iterator[Session]:
+    # We catch the reference to SessionLocal at runtime to allow mocking
+    db = (session_cls or SessionLocal)()
     try:
         yield db
     finally:

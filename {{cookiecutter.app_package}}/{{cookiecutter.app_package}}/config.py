@@ -26,6 +26,7 @@ class Config(BaseSettings):
 
     VERSION: str = ""
     GIT_SHA: str = ""
+    GIT_REF: str = ""
 
     DB_USER: str = UNCONFIGURED
     DB_PASSWORD: str = UNCONFIGURED
@@ -37,6 +38,12 @@ class Config(BaseSettings):
 
     # Set to true for local dev
     USE_CONSOLE_LOGGING: bool = False
+
+    @property
+    def VERSION_FULL(self) -> str:  # noqa
+        if not self.GIT_SHA:
+            return self.VERSION
+        return f"{self.VERSION}+{self.GIT_SHA}"
 
 
 def get_config() -> Config:

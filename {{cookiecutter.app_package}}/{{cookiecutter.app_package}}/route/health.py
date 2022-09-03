@@ -1,5 +1,7 @@
+from typing import Set
+
 import celery.exceptions
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, JSONResponse
 from structlog import get_logger
 
 from {{ cookiecutter.app_package}}.lib.db import check_db
@@ -8,13 +10,22 @@ from {{ cookiecutter.app_package}}.task import health as tasks
 TASK_TIMEOUT = 4  # secs
 
 router = APIRouter()
-logger = get_logger()
+logger = get_logger(__name__)
+
+HEADERS = {"version": config.VERSION_FULL}
+RETURNED_CONFIG: Set[str] = {"GIT_SHA", "GIT_REF", "VERSION_FULL", "ENV_NAME"}
 
 
 @router.get("/health")
-async def get_health() -> dict[str, str]:
+async def get_health() -> JSONResponse:
     """Verify server health."""
-    return {"message": "ok"}
+    return JSONReponse({"message": "ok"}, headers=HEADERS)
+
+
+@router.get("/health/config")
+async def get_health_config() -> dict[str, str]:
+    """Verify server config."""
+    return {k: getattr(config, k) for k in RETURNED_CONFIG}
 
 
 @router.get("/health/log")
